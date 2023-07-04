@@ -1,7 +1,13 @@
-import { View, Text, TextInput, FlatList, ActivityIndicator, } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { MagnifyingGlass } from "phosphor-react-native";
 import { useEffect, useState } from "react";
-
+import {
+  ActivityIndicator,
+  FlatList,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
 import { styles } from "./styles";
 import { api } from "../../services/api";
@@ -19,8 +25,11 @@ export function Home() {
     const [searchResultMovie, setSearchResultMovies] = useState<Movie[]>([]);
     const [page, setPage] = useState(1);
     const [loading, setloading] = useState(false);
-    const [noResult, setnoResult] = useState(false);
+    const [noResults, setnoResult] = useState(false);
     const [search, setsearch] = useState("");
+
+
+    const navigation = useNavigation();
 
     useEffect(() => {
         loadMoreData();
@@ -65,12 +74,19 @@ const searchMovies = async (query: string) => {
             searchMovies(text);
         }else{
             setSearchResultMovies([]);
-
         }
     };
 
+    const renderMovieItem = ({ item }: { item: Movie }) => (
+        <CardMovies
+          data={item}
+          onPress={() => {
+            navigation.navigate("Details", { movieId: item.id });
+          }}
+        />
+      );
 
-    const movieData = search.length > 2 ? searchResultMovie : discoveryMovies;
+    const movieData = search.length > 1 ? searchResultMovie : discoveryMovies;
 
     return (
         <View style={styles.container}>
@@ -91,16 +107,21 @@ const searchMovies = async (query: string) => {
                 <FlatList
                     data={movieData}
                     numColumns={3}
-                    renderItem={(item) => <CardMovies data={item.item} />}
+                    renderItem={renderMovieItem}
                     showsVerticalScrollIndicator={false}
-                    keyExtractor={(item) => item.id.toString()}
                     contentContainerStyle={{
                         padding: 35,
                         paddingBottom: 100,
                     }}
+                    keyExtractor={(item) => item.id.toString()}
                     onEndReached={() => loadMoreData()}
                     onEndReachedThreshold={0.5}
                 />
+                 {noResults && (
+          <Text style={styles.noResultsText}>
+            Nenhum filme encontrado para "{search}"
+          </Text>
+        )}
                 {loading && <ActivityIndicator  size={50} color="#0296e5"/>}
             </View>
         </View>

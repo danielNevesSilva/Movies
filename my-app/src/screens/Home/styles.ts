@@ -31,6 +31,12 @@ export const styles = StyleSheet.create({
       color: "#fff",
       width: "80%",
       paddingLeft: 15,
-    }
+    },
+    noResultsText: {
+      color: "#FFF",
+      fontSize: 18,
+      textAlign: "center",
+      marginVertical: -70,
+    },
   });
   
